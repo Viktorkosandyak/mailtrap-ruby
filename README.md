@@ -67,6 +67,22 @@ Refer to the [`examples`](examples) folder for more examples.
 - [Full](examples/full.rb)
 - [Email template](examples/email_template.rb)
 - [ActionMailer](examples/action_mailer.rb)
+- [Template](examples/template.rb)
+
+#### Email Templates
+
+```ruby
+client = Mailtrap::Client.new(api_key: 'your-api-key')
+templates = Mailtrap::Template.new(client)
+
+templates.create(
+  account_id: 'your-account-id',
+  name: 'Welcome',
+  subject: 'Hi!',
+  body_html: '<h1>Welcome</h1>',
+  body_text: 'Plain text version'
+)
+```
 
 ### Content-Transfer-Encoding
 

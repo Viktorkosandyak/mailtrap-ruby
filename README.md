@@ -67,6 +67,22 @@ Refer to the [`examples`](examples) folder for more examples.
 - [Full](examples/full.rb)
 - [Email template](examples/email_template.rb)
 - [ActionMailer](examples/action_mailer.rb)
+- [Contact](examples/contact.rb)
+
+### Additional Features
+
+#### Managing Contacts
+
+```ruby
+client = Mailtrap::Client.new(api_key: 'your-api-key')
+contacts = Mailtrap::Contact.new(client)
+
+contacts.create(
+  account_id: 'your-account-id',
+  email: 'user@example.com',
+  list_ids: ['your-list-id']
+)
+```
 
 ### Content-Transfer-Encoding
 

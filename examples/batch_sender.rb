@@ -4,7 +4,6 @@ require_relative '../lib/mailtrap'
 require 'base64'
 
 API_KEY = 'your-real-mailtrap-api-key-here'
-API_KEY = '66625775e0dcd763c981e72edbe29d2f'
 
 client = Mailtrap::Client.new(
   api_key: API_KEY,

@@ -36,4 +36,3 @@ module Mailtrap
   #   * Domain is not verified
   class RejectionError < Error; end
 end
-

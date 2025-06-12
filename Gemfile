@@ -7,6 +7,7 @@ gemspec
 gem 'appraisal'
 gem 'mail'
 gem 'net-smtp'
+gem 'pry', group: :development
 gem 'rake', '~> 13.0'
 gem 'rspec', '~> 3.0'
 gem 'rspec-its'
@@ -15,4 +16,3 @@ gem 'rubocop-rake', require: false
 gem 'rubocop-rspec', require: false
 gem 'vcr'
 gem 'webmock'
-gem 'pry'

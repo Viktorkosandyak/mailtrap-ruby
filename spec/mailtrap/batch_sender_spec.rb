@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mailtrap/client'
 require 'mailtrap/batch_sender'

@@ -7,16 +7,11 @@ module Mailtrap
     end
 
     def send_emails(base:, requests:)
-      unless @client.api_host.include?('bulk.api.mailtrap.io')
-        raise ArgumentError, '[Mailtrap] batch_send must use bulk.api.mailtrap.io'
-      end
-
+      validate_client_host!
       base_payload = ensure_hash(base).transform_keys(&:to_sym).except(:to, :cc, :bcc)
-
       validate_requests!(requests)
 
       payload = { base: base_payload, requests: }
-
       response = @client.batch_send(payload)
 
       unless response.is_a?(Hash) && response[:responses].is_a?(Array)
@@ -28,6 +23,12 @@ module Mailtrap
     end
 
     private
+
+    def validate_client_host!
+      return if @client.api_host.include?('bulk.api.mailtrap.io')
+
+      raise ArgumentError, '[Mailtrap] batch_send must use bulk.api.mailtrap.io'
+    end
 
     def ensure_hash(obj)
       return obj.as_json if obj.respond_to?(:as_json)
@@ -41,15 +42,21 @@ module Mailtrap
       raise ArgumentError, 'Too many messages in batch: max 500 allowed' if requests.size > 500
 
       requests.each_with_index do |request, index|
-        %i[to cc bcc].each do |field|
-          next unless request[field].is_a?(Array)
+        validate_recipients!(request, index)
+      end
+    end
 
-          request[field].compact.each do |recipient|
-            Mailtrap::Validators::EmailValidator.validate!(recipient[:email],
-                                                           field_name: "#{field}[:email] in request ##{index + 1}")
-          rescue ArgumentError => e
-            raise ArgumentError, e.message
-          end
+    def validate_recipients!(request, index)
+      %i[to cc bcc].each do |field|
+        next unless request[field].is_a?(Array)
+
+        request[field].compact.each do |recipient|
+          Mailtrap::Validators::EmailValidator.validate!(
+            recipient[:email],
+            field_name: "#{field}[:email] in request ##{index + 1}"
+          )
+        rescue ArgumentError => e
+          raise ArgumentError, e.message
         end
       end
     end

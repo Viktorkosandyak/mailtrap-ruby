@@ -25,7 +25,7 @@ base_mail = Mailtrap::Batch::Base.new(
       filename: 'test.txt',
       content: Base64.strict_encode64('This is a test')
     }
-  ],
+  ]
 )
 
 requests = [
@@ -41,7 +41,7 @@ requests = [
   }
 ]
 
-response = batch.send_emails(base: base_mail, requests: requests)
+response = batch.send_emails(base: base_mail, requests:)
 
-puts "Batch email sent:"
+puts 'Batch email sent:'
 puts response

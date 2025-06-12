@@ -4,7 +4,6 @@ require 'mailtrap/batch_sender'
 require 'mailtrap/batch/base'
 require 'mailtrap/validators/email_validator'
 
-
 RSpec.describe Mailtrap::BatchSender do
   let(:client) do
     Mailtrap::Client.new(
@@ -36,40 +35,40 @@ RSpec.describe Mailtrap::BatchSender do
       client = Mailtrap::Client.new(api_key: 'test-token') # bulk: false
       sender = described_class.new(client)
 
-      expect {
-        sender.send_emails(base: base, requests: requests)
-      }.to raise_error(ArgumentError, /bulk.api.mailtrap.io/)
+      expect do
+        sender.send_emails(base:, requests:)
+      end.to raise_error(ArgumentError, /bulk.api.mailtrap.io/)
     end
 
     it 'raises if base.from is invalid' do
-      expect {
+      expect do
         Mailtrap::Batch::Base.new(
           from: { email: 'bad' },
           subject: 'Test',
           html: '<h1>Hello</h1>',
           text: 'Hello!'
         )
-      }.to raise_error(ArgumentError, /Invalid from\[:email\]/)
+      end.to raise_error(ArgumentError, /Invalid from\[:email\]/)
     end
 
     it 'raises if requests are missing or too big' do
-      expect {
-        sender.send_emails(base: base, requests: [])
-      }.to raise_error(ArgumentError, /non-empty Array/)
+      expect do
+        sender.send_emails(base:, requests: [])
+      end.to raise_error(ArgumentError, /non-empty Array/)
 
       many = Array.new(501) { { to: [{ email: 'u@example.com' }] } }
 
-      expect {
-        sender.send_emails(base: base, requests: many)
-      }.to raise_error(ArgumentError, /max 500/)
+      expect do
+        sender.send_emails(base:, requests: many)
+      end.to raise_error(ArgumentError, /max 500/)
     end
 
     it 'raises on invalid recipient email' do
       bad_requests = [{ to: [{ email: 'bad' }] }]
 
-      expect {
-        sender.send_emails(base: base, requests: bad_requests)
-      }.to raise_error(ArgumentError, /Invalid to\[.*\]/)
+      expect do
+        sender.send_emails(base:, requests: bad_requests)
+      end.to raise_error(ArgumentError, /Invalid to\[.*\]/)
     end
 
     it 'sends batch correctly and parses response' do
@@ -79,23 +78,23 @@ RSpec.describe Mailtrap::BatchSender do
 
       allow(client).to receive(:batch_send).and_return(response)
 
-      result = sender.send_emails(base: base, requests: requests)
+      result = sender.send_emails(base:, requests:)
       expect(result).to eq(response)
     end
 
     it 'raises if response is not valid hash' do
       allow(client).to receive(:batch_send).and_return('not a hash')
 
-      expect {
-        sender.send_emails(base: base, requests: requests)
-      }.to raise_error(Mailtrap::InvalidApiResponseError)
+      expect do
+        sender.send_emails(base:, requests:)
+      end.to raise_error(Mailtrap::InvalidApiResponseError)
     end
   end
 
   it 'raises if base is not a Hash or object with #as_json' do
-    expect {
-      sender.send_emails(base: 123, requests: requests)
-    }.to raise_error(ArgumentError, /Expected Hash or object with #as_json/)
+    expect do
+      sender.send_emails(base: 123, requests:)
+    end.to raise_error(ArgumentError, /Expected Hash or object with #as_json/)
   end
 
   it 'converts base using as_json if base responds to it' do
@@ -103,7 +102,7 @@ RSpec.describe Mailtrap::BatchSender do
 
     allow(client).to receive(:batch_send).and_return({ responses: [] })
 
-    result = sender.send_emails(base: dummy_base, requests: requests)
+    result = sender.send_emails(base: dummy_base, requests:)
     expect(result[:responses]).to eq([])
   end
 
@@ -112,9 +111,9 @@ RSpec.describe Mailtrap::BatchSender do
 
     allow(client).to receive(:batch_send).and_return({ responses: [] })
 
-    expect {
-      sender.send_emails(base: base, requests: requests_with_scalar_to)
-    }.not_to raise_error
+    expect do
+      sender.send_emails(base:, requests: requests_with_scalar_to)
+    end.not_to raise_error
   end
 
   it 'accepts empty cc and bcc arrays' do
@@ -122,24 +121,23 @@ RSpec.describe Mailtrap::BatchSender do
 
     allow(client).to receive(:batch_send).and_return({ responses: [] })
 
-    result = sender.send_emails(base: base, requests: clean_requests)
+    result = sender.send_emails(base:, requests: clean_requests)
     expect(result[:responses]).to eq([])
   end
 
   it 'raises if recipient is missing :email key' do
     bad_requests = [{ to: [{}] }]
 
-    expect {
-      sender.send_emails(base: base, requests: bad_requests)
-    }.to raise_error(ArgumentError, /Invalid to\[.*\]/)
+    expect do
+      sender.send_emails(base:, requests: bad_requests)
+    end.to raise_error(ArgumentError, /Invalid to\[.*\]/)
   end
 
   it 'raises if response does not contain responses array' do
     allow(client).to receive(:batch_send).and_return({ success: true })
 
-    expect {
-      sender.send_emails(base: base, requests: requests)
-    }.to raise_error(Mailtrap::InvalidApiResponseError)
+    expect do
+      sender.send_emails(base:, requests:)
+    end.to raise_error(Mailtrap::InvalidApiResponseError)
   end
-
 end

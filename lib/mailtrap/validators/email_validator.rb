@@ -10,9 +10,9 @@ module Mailtrap
       end
 
       def validate!(email, field_name: 'email')
-        unless valid?(email)
-          raise ArgumentError, "Invalid #{field_name}"
-        end
+        return if valid?(email)
+
+        raise ArgumentError, "Invalid #{field_name}"
       end
     end
   end

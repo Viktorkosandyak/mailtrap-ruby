@@ -13,7 +13,8 @@ module Mailtrap
 
     attr_reader :api_key, :api_host, :api_port, :bulk, :sandbox, :inbox_id
 
-    def initialize(api_key: ENV.fetch('MAILTRAP_API_KEY'), api_host: nil, api_port: API_PORT, bulk: false, sandbox: false, inbox_id: nil)
+    def initialize(api_key: ENV.fetch('MAILTRAP_API_KEY'), api_host: nil, api_port: API_PORT, bulk: false,
+                   sandbox: false, inbox_id: nil)
       raise ArgumentError, 'api_key is required' if api_key.nil?
       raise ArgumentError, 'api_port is required' if api_port.nil?
 
@@ -37,17 +38,17 @@ module Mailtrap
     end
 
     def get(path, params: {})
-      request(:get, path, params: params)
+      request(:get, path, params:)
     end
-    
+
     def post(path, body: {})
-      request(:post, path, body: body)
+      request(:post, path, body:)
     end
-    
+
     def patch(path, body: {})
-      request(:patch, path, body: body)
+      request(:patch, path, body:)
     end
-    
+
     def delete(path)
       request(:delete, path)
     end
@@ -59,14 +60,14 @@ module Mailtrap
     def request(method, path, body: nil, params: nil)
       uri = URI::HTTPS.build(
         host: api_host,
-        path: path,
+        path:,
         query: params ? URI.encode_www_form(params) : nil
       )
-    
+
       request = build_request(method, uri, body)
       perform_request(uri, request)
     end
-    
+
     def build_request(method, uri, body)
       request_class = {
         get: Net::HTTP::Get,
@@ -74,13 +75,11 @@ module Mailtrap
         patch: Net::HTTP::Patch,
         delete: Net::HTTP::Delete
       }[method.to_sym] || raise(ArgumentError, "Unsupported method: #{method}")
-    
+
       request = request_class.new(uri)
 
-      if [:post, :patch].include?(method.to_sym) && body
-        request.body = JSON.dump(body)
-      end
-    
+      request.body = JSON.dump(body) if %i[post patch].include?(method.to_sym) && body
+
       attach_headers(request)
       request
     end
@@ -92,11 +91,12 @@ module Mailtrap
 
       return SANDBOX_API_HOST if sandbox
       return BULK_SENDING_API_HOST if bulk
+
       SENDING_API_HOST
     end
 
     def request_url
-      "/api/send#{sandbox ? "/#{inbox_id}" : ''}"
+      "/api/send#{sandbox ? "/#{inbox_id}" : ""}"
     end
 
     def http_client(cache: true)
@@ -118,7 +118,7 @@ module Mailtrap
       request['User-Agent'] = 'mailtrap-ruby (https://github.com/railsware/mailtrap-ruby)'
     end
 
-    def perform_request(uri, request)
+    def perform_request(_uri, request)
       client = http_client(cache: false)
       response = client.request(request)
       handle_response(response)
